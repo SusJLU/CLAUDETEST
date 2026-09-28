@@ -20,7 +20,7 @@ const en = {
   tabs: ['Today', 'Notes', 'Follow-ups', 'Summary'], day: 'Day',
   mon: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], all: 'All',
-  groups: { beef: 'Beef', lamb: 'Lamb', poultry: 'Poultry', game: 'Game', pork: 'Ibérico / pork', duck: 'Duck & goose' } as Record<Group, string>,
+  groups: { beef: 'Beef', lamb: 'Lamb', poultry: 'Poultry', game: 'Game', pork: 'Ibérico / pork', duck: 'Duck & goose', other: 'Other' } as Record<Group, string>,
   pri: { hot: 'Hot lead', warm: 'Warm', cold: 'Cold' } as Record<Priority, string>, hotShort: 'Hot',
   local: 'Saved on this phone', noteSaved: 'Note saved', savedBody: 'Stored on this phone.',
   companyErr: 'Enter a company name',
@@ -45,6 +45,10 @@ const en = {
   permMic: 'Microphone access is needed to record a voice memo.', saveWhere: 'Save or share?',
   saveFolder: 'Save to folder', share: 'Share…', errTitle: 'Something went wrong', noMail: 'No mail app found. The file is shared instead.',
   back: 'Back',
+  groupHint: 'Select one or more', otherPh: 'Which product? e.g. Fish, vegan', page: 'page', pages: 'pages',
+  scanNotes: 'Scan notes', handwritten: 'Handwritten notes', reading: 'Reading handwriting…',
+  ocrAdded: 'Text added to the note — please check it.', ocrNone: 'No readable text found. The photo is kept with the note.',
+  ocrFail: 'Text could not be read. The photo is kept with the note.',
 };
 
 type Strings = typeof en;
@@ -67,7 +71,7 @@ const nl: Strings = {
   tabs: ['Vandaag', 'Notities', 'Acties', 'Overzicht'], day: 'Dag',
   mon: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
   wd: ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'], all: 'Alle',
-  groups: { beef: 'Rund', lamb: 'Lam', poultry: 'Gevogelte', game: 'Wild', pork: 'Ibérico / varken', duck: 'Eend & gans' },
+  groups: { beef: 'Rund', lamb: 'Lam', poultry: 'Gevogelte', game: 'Wild', pork: 'Ibérico / varken', duck: 'Eend & gans', other: 'Overig' },
   pri: { hot: 'Hot lead', warm: 'Warm', cold: 'Koud' }, hotShort: 'Hot',
   local: 'Opgeslagen op telefoon', noteSaved: 'Notitie opgeslagen', savedBody: 'Opgeslagen op deze telefoon.',
   companyErr: 'Vul een bedrijfsnaam in',
@@ -91,6 +95,10 @@ const nl: Strings = {
   permMic: 'Toegang tot de microfoon is nodig voor een spraakmemo.', saveWhere: 'Opslaan of delen?',
   saveFolder: 'Opslaan in map', share: 'Delen…', errTitle: 'Er ging iets mis', noMail: 'Geen mail-app gevonden. Het bestand wordt gedeeld.',
   back: 'Terug',
+  groupHint: 'Kies er één of meer', otherPh: 'Welk product? bijv. Vis, vegan', page: 'pagina', pages: 'pagina’s',
+  scanNotes: 'Notities scannen', handwritten: 'Handgeschreven notities', reading: 'Handschrift lezen…',
+  ocrAdded: 'Tekst toegevoegd aan de notitie — controleer deze even.', ocrNone: 'Geen leesbare tekst gevonden. De foto blijft bij de notitie.',
+  ocrFail: 'Tekst kon niet gelezen worden. De foto blijft bij de notitie.',
 };
 
 export const TX: Record<Lang, Strings> = { en, nl };

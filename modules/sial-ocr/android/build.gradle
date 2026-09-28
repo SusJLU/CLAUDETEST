@@ -1,0 +1,19 @@
+apply plugin: 'com.android.library'
+
+group = 'com.luitenfood.sialocr'
+version = '1.0.0'
+
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+apply from: expoModulesCorePlugin
+applyKotlinExpoModulesCorePlugin()
+useCoreDependencies()
+useDefaultAndroidSdkVersions()
+
+android {
+  namespace "com.luitenfood.sialocr"
+}
+
+dependencies {
+  // Bundled model: works offline from the first launch (no Play Services download).
+  implementation 'com.google.mlkit:text-recognition:16.0.1'
+}

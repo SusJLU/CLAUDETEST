@@ -1,7 +1,7 @@
 export type Lang = 'nl' | 'en';
-export type Group = 'beef' | 'lamb' | 'poultry' | 'game' | 'pork' | 'duck';
+export type Group = 'beef' | 'lamb' | 'poultry' | 'game' | 'pork' | 'duck' | 'other';
 export type Priority = 'hot' | 'warm' | 'cold';
-export type AttachmentType = 'card' | 'photo' | 'voice';
+export type AttachmentType = 'card' | 'photo' | 'voice' | 'page'; // page = photo of handwritten notes
 export type TabId = 'today' | 'notes' | 'follow' | 'summary';
 
 export interface Note {
@@ -12,7 +12,8 @@ export interface Note {
   stand: string;
   contact: string;
   role: string;
-  group: Group;
+  groups: Group[]; // one or more product groups
+  otherGroup: string; // free text when groups includes 'other'
   priority: Priority;
   day: number; // 0–4 → 17–21 Oct 2026
   time: string; // HH:MM

@@ -24,8 +24,10 @@ export const noteTime = (n: Note, L: L) => weekday(EVENT.dates[n.day], L) + ' ' 
 
 export function mediaMeta(atts: Attachment[], L: L) {
   const photos = atts.filter(a => a.type === 'photo').length;
+  const pages = atts.filter(a => a.type === 'page').length;
   return [
     photos ? photos + ' ' + (photos > 1 ? L.photos : L.photo) : null,
+    pages ? pages + ' ' + (pages > 1 ? L.pages : L.page) : null,
     atts.some(a => a.type === 'card') ? L.card : null,
     atts.some(a => a.type === 'voice') ? L.voice : null,
   ].filter(Boolean).join(' · ');
@@ -67,7 +69,7 @@ export function NoteRow({ n, L, onPress }: { n: Note; L: L; onPress: () => void 
   return (
     <Pressable onPress={onPress}>
       <Card style={{ flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14 }}>
-        <AnimalIcon group={n.group} />
+        <AnimalIcon group={n.groups[0]} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <Text numberOfLines={1} style={T.companyRow}>{n.company}</Text>
           <Text style={T.muted}>{noteTime(n, L)} · {standLine(n, L)}</Text>

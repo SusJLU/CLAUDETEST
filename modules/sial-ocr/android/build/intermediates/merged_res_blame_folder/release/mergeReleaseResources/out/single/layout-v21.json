@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-core-1.17.0-12:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-core-1.17.0-12:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-core-1.17.0-12:/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-v21/notification_action.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-core-1.17.0-12:/layout-v21/notification_action.xml"
+    }
+]

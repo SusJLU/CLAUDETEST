@@ -13,8 +13,8 @@ export default function Notes({ nav }: { nav: Nav }) {
   const [query, setQuery] = useState('');
 
   const q = query.trim().toLowerCase();
-  const list = notes.filter(n => (filter === 'all' || n.group === filter) &&
-    (!q || [n.company, n.contact, n.stand, n.text, n.country].join(' ').toLowerCase().includes(q)));
+  const list = notes.filter(n => (filter === 'all' || n.groups.includes(filter)) &&
+    (!q || [n.company, n.contact, n.stand, n.text, n.country, n.otherGroup].join(' ').toLowerCase().includes(q)));
 
   return (
     <View style={{ flex: 1 }}>
@@ -48,7 +48,7 @@ export default function Notes({ nav }: { nav: Nav }) {
             <Pressable key={n.id} onPress={() => nav.openNote(n.id)}>
               <Card style={{ padding: 14, gap: 10 }}>
                 <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-                  <AnimalIcon group={n.group} />
+                  <AnimalIcon group={n.groups[0]} />
                   <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                     <Text numberOfLines={1} style={[T.companyRow, { fontSize: 16 }]}>{n.company}</Text>
                     <Text style={T.muted}>{standLine(n, L)} · {noteTime(n, L)}</Text>

@@ -19,7 +19,7 @@ export default function Summary({ nav }: { nav: Nav }) {
   const dayIds = new Set(dayNotes.map(n => n.id));
   const dayTasks = tasks.filter(t => dayIds.has(t.noteId));
   const hot = dayNotes.filter(n => n.priority === 'hot');
-  const byGroup = GROUPS.map(g => ({ ...g, count: dayNotes.filter(n => n.group === g.id).length })).filter(g => g.count > 0);
+  const byGroup = GROUPS.map(g => ({ ...g, count: dayNotes.filter(n => n.groups.includes(g.id)).length })).filter(g => g.count > 0);
   const open = tasks.filter(t => !t.done);
   const data: Data = { notes, tasks, meetings, attachments, settings };
   const dayLabel = `${L.day} ${day + 1} · ${fmtDate(EVENT.dates[day], L)}`;

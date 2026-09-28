@@ -19,7 +19,8 @@ export interface Draft {
   contact: string;
   country: string;
   role: string;
-  group: Group;
+  groups: Group[];
+  otherGroup: string;
   priority: Priority;
   text: string;
   price: string;
@@ -86,7 +87,8 @@ function useStoreValue() {
         stand: stand || '–',
         contact: d.contact.trim() || L.unknown,
         role: d.role.trim(),
-        group: d.group,
+        groups: d.groups,
+        otherGroup: d.groups.includes('other') ? d.otherGroup.trim() : '',
         priority: d.priority,
         day: prev?.day ?? opts.day,
         time: prev?.time ?? nowTime(),

@@ -15,8 +15,13 @@ Design reference: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
 | **Acties / Follow-ups** | Open / done follow-ups with checkbox, owner and deadline. |
 | **Overzicht / Summary** | Day stats, per product group, hot leads, open actions per person, day export and **Export everything**. Gear icon → settings (language, "this phone belongs to", price field). |
 
-- **New note** (green +): company*, stand, contact, country, role, product group, priority, note, price & volume,
+- **New note** (green +): company*, stand, contact, country, role, product groups (select one or more; *Overig / Other*
+  asks what product), priority, note, price & volume,
   business card photo, photos (camera or gallery), voice memo (recorded on the phone), follow-up with owner and deadline.
+- **Notities scannen / Scan notes** (under the note field): photograph a handwritten page; on-device OCR
+  (Google ML Kit, bundled model — works offline) reads it and appends the text to the note for checking. The photo is
+  kept with the note as a *handwritten page*. Several pages can be scanned. Clear handwriting and good light help; it
+  reads Latin script (NL/EN/FR/ES/DE…).
 - **Note detail**: photo thumbnails (tap to enlarge), voice memo playback, follow-ups, *Mail samenvatting*, edit, delete.
 - **Offline-first**: everything is stored on the phone in SQLite (`sial-notes.db`) and the app's media folder.
   There is no server; sharing happens through mail/CSV/JSON export. Notes carry a `syncedAt` field so a sync
@@ -35,14 +40,14 @@ Design reference: [`docs/DESIGN_HANDOFF.md`](docs/DESIGN_HANDOFF.md).
 Each file export asks **Opslaan in map** (pick a folder, e.g. Downloads or Drive) or **Delen…** (share sheet).
 CSV files use `;` as separator with a UTF-8 BOM so Dutch Excel opens them in columns.
 
-### JSON format (`schema: "luitenfood.sial-notes.export"`, `schemaVersion: 1`)
+### JSON format (`schema: "luitenfood.sial-notes.export"`, `schemaVersion: 2`)
 
 Designed to be handed to Claude (or any script) for later processing:
 
 ```jsonc
 {
   "schema": "luitenfood.sial-notes.export",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "exportedAt": "2026-10-17T16:42:00.000Z",
   "exportedBy": "SV",
   "app": { "name": "SIAL Notes", "version": "1.0.0", "platform": "android" },
@@ -54,7 +59,8 @@ Designed to be handed to Claude (or any script) for later processing:
   "notes": [{
     "id": "…", "company": "Pampa Grass-Fed Beef", "country": "Argentina", "hall": "6", "stand": "6 F 045",
     "contact": "Martín Ríos", "role": "Export manager",
-    "group": "beef",            // beef | lamb | poultry | game | pork | duck
+    "groups": ["beef", "other"], // one or more of beef | lamb | poultry | game | pork | duck | other
+    "otherGroup": "Fish",        // free text when "other" is selected
     "priority": "hot",          // hot | warm | cold
     "day": 0, "date": "2026-10-17", "time": "10:40", "createdBy": "SV",
     "text": "…", "price": "…", "meetingId": "…" ,
@@ -65,6 +71,9 @@ Designed to be handed to Claude (or any script) for later processing:
   "meetings": [{ "id": "…", "day": 1, "date": "2026-10-18", "time": "10:00", "company": "…", "stand": "…", "contact": "…", "noteId": null, "createdAt": "…" }]
 }
 ```
+
+Attachment types: `card`, `photo`, `page` (handwritten notes; OCR text is already in `text`), `voice`.
+v1 → v2: `group` (string) became `groups` (array) + `otherGroup`.
 
 `attachments[].file` is `null` in the JSON-only export and a path inside the ZIP in the media export.
 
@@ -80,7 +89,7 @@ cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,arm
 # → android/app/build/outputs/apk/release/app-release.apk
 ```
 
-**Size:** R8 minify, resource shrinking and compressed native libs are enabled via `expo-build-properties` in `app.json` (APK ≈ 22 MB).
+**Size:** R8 minify, resource shrinking and compressed native libs are enabled via `expo-build-properties` in `app.json` (APK ≈ 31 MB universal, ≈ 23 MB arm64-only with `-PreactNativeArchitectures=arm64-v8a`; the OCR model adds ~10 MB).
 
 **Signing:** release builds are signed with the keystore described in `credentials/keystore.properties`
 (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; the `.jks` sits in `credentials/`). That folder is
@@ -104,12 +113,13 @@ src/media.ts            camera / gallery / file helpers
 src/export.ts           CSV, summaries, JSON + ZIP export, save/share/mail
 src/ui.tsx              design-system components (Button, Badge, Tag, Input, Checkbox, Toast, icons)
 src/screens/            Today, Notes, FollowUps, Summary, Detail, Capture, Sheets (meeting + settings)
+modules/sial-ocr/       local Expo module: on-device OCR (ML Kit text recognition, Android)
 src/svgAssets.ts        animal-cut and flag SVGs from the handoff
 ```
 
 ## Not in this version
 
 - Team sync / backend (all data stays on the phone; use the exports).
-- Business card OCR into contact fields.
+- Business card OCR into contact fields (handwritten notes are OCR'd into the note text).
 - Direct CRM integration (CRM still to be confirmed with Luiten IT — the CRM CSV is a generic lead import).
 - Editable team list (sample team SV / IB / MK in `src/constants.ts`).

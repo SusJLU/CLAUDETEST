@@ -146,9 +146,15 @@ export const Avatar = ({ id, size = 32, style }: { id: string; size?: number; st
   </View>
 );
 
-export const AnimalIcon = ({ group, w = 40, h = 28 }: { group: Group; w?: number; h?: number }) => (
-  <SvgXml xml={ANIMAL_SVG[GROUP_ICON[group]]} width={w} height={h} />
-);
+/** Butcher-cut silhouette per product group; "other" (or none) gets a package icon. */
+export const AnimalIcon = ({ group, w = 40, h = 28 }: { group: Group | undefined; w?: number; h?: number }) =>
+  group && group !== 'other' ? (
+    <SvgXml xml={ANIMAL_SVG[GROUP_ICON[group]]} width={w} height={h} />
+  ) : (
+    <View style={{ width: w, height: h, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name="package" size={Math.min(w, h) * 0.9} color={C.navy} />
+    </View>
+  );
 
 export const Flag = ({ id, size = 16 }: { id: 'nl' | 'en'; size?: number }) => (
   <View style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }}>
@@ -165,7 +171,7 @@ export const SyncStatus = ({ label }: { label: string }) => (
 
 // ---------- Lucide icons (2px stroke) ----------
 
-type IconName = 'calendar' | 'file' | 'check' | 'clipboard' | 'search' | 'chevron' | 'plus' | 'card' | 'camera' | 'mic' | 'play' | 'pause' | 'settings' | 'x' | 'stop';
+type IconName = 'calendar' | 'file' | 'check' | 'clipboard' | 'search' | 'chevron' | 'plus' | 'card' | 'camera' | 'mic' | 'play' | 'pause' | 'settings' | 'x' | 'stop' | 'package' | 'scan';
 export function Icon({ name, size = 22, color = C.navy, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; strokeWidth?: number }) {
   const p = { stroke: color, strokeWidth, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
@@ -177,6 +183,8 @@ export function Icon({ name, size = 22, color = C.navy, strokeWidth = 2 }: { nam
       {name === 'search' && <><Circle cx={11} cy={11} r={8} {...p} /><Path d="m21 21-4.3-4.3" {...p} /></>}
       {name === 'chevron' && <Path d="m15 18-6-6 6-6" {...p} />}
       {name === 'plus' && <Path d="M5 12h14M12 5v14" {...p} />}
+      {name === 'package' && <><Path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" {...p} /><Path d="M12 22V12M3.29 7 12 12l8.71-5M7.5 4.27l9 5.15" {...p} /></>}
+      {name === 'scan' && <><Path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8h8M7 12h10M7 16h6" {...p} /></>}
       {name === 'x' && <Path d="M18 6 6 18M6 6l12 12" {...p} />}
       {name === 'card' && <><Rect x={2} y={5} width={20} height={14} rx={2} {...p} /><Circle cx={8} cy={12} r={2} {...p} /><Path d="M13 10h5M13 14h3" {...p} /></>}
       {name === 'camera' && <><Path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" {...p} /><Circle cx={12} cy={13} r={3} {...p} /></>}

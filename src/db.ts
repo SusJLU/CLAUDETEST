@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite';
-import type { Attachment, ExportLog, Meeting, Note, Settings, Task } from './types';
+import type { Attachment, Group, ExportLog, Meeting, Note, Settings, Task } from './types';
 
 // Local SQLite store. Every write goes here first; `syncedAt` is kept on notes
 // so a server sync queue can be added later without a migration.
@@ -29,13 +29,32 @@ export async function initDb() {
     );
     CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY NOT NULL, value TEXT);
   `);
+  // v1.1: multiple product groups + "other". Older rows only have `grp`.
+  const cols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(notes)');
+  if (!cols.some(c => c.name === 'groups')) {
+    await db.execAsync(`
+      ALTER TABLE notes ADD COLUMN groups TEXT;
+      ALTER TABLE notes ADD COLUMN other_group TEXT;
+      UPDATE notes SET groups = json_array(grp) WHERE groups IS NULL;
+    `);
+  }
 }
+
+const parseGroups = (r: Row): Group[] => {
+  try {
+    const g = JSON.parse(r.groups ?? 'null');
+    if (Array.isArray(g)) return g;
+  } catch {
+    // fall through to the legacy single group
+  }
+  return r.grp ? [r.grp] : [];
+};
 
 type Row = Record<string, any>;
 
 const toNote = (r: Row): Note => ({
   id: r.id, company: r.company, country: r.country ?? '', hall: r.hall ?? '', stand: r.stand ?? '',
-  contact: r.contact ?? '', role: r.role ?? '', group: r.grp, priority: r.priority, day: r.day,
+  contact: r.contact ?? '', role: r.role ?? '', groups: parseGroups(r), otherGroup: r.other_group ?? '', priority: r.priority, day: r.day,
   time: r.time ?? '', createdBy: r.created_by ?? '', text: r.text ?? '', price: r.price ?? '',
   meetingId: r.meeting_id ?? null, createdAt: r.created_at, updatedAt: r.updated_at, syncedAt: r.synced_at ?? null,
 });
@@ -76,10 +95,11 @@ export async function putKv(key: string, value: unknown) {
 export async function upsertNote(n: Note) {
   await db.runAsync(
     `INSERT OR REPLACE INTO notes (id, company, country, hall, stand, contact, role, grp, priority, day, time,
-      created_by, text, price, meeting_id, created_at, updated_at, synced_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    n.id, n.company, n.country, n.hall, n.stand, n.contact, n.role, n.group, n.priority, n.day, n.time,
-    n.createdBy, n.text, n.price, n.meetingId, n.createdAt, n.updatedAt, n.syncedAt,
+      created_by, text, price, meeting_id, created_at, updated_at, synced_at, groups, other_group)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    // `grp` keeps the first group so the column stays NOT NULL and readable by older tooling.
+    n.id, n.company, n.country, n.hall, n.stand, n.contact, n.role, n.groups[0] ?? 'other', n.priority, n.day, n.time,
+    n.createdBy, n.text, n.price, n.meetingId, n.createdAt, n.updatedAt, n.syncedAt, JSON.stringify(n.groups), n.otherGroup,
   );
 }
 

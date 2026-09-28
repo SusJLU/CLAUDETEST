@@ -4,7 +4,8 @@ import * as MailComposer from 'expo-mail-composer';
 import * as Sharing from 'expo-sharing';
 import { zipSync, strToU8 } from 'fflate';
 import Constants from 'expo-constants';
-import { EVENT, OWNERS, fmtDate } from './constants';
+import { EVENT, OWNERS, fmtDate, groupLabel } from './constants';
+import { TX } from './i18n';
 import type { L } from './i18n';
 import type { Attachment, Meeting, Note, Settings, Task } from './types';
 
@@ -32,15 +33,15 @@ const cell = (v: unknown) => {
 const csv = (rows: unknown[][]) => '﻿' + rows.map(r => r.map(cell).join(SEP)).join('\r\n') + '\r\n';
 
 export function notesCsv(d: Data, notes: Note[]) {
-  const head = ['note_id', 'date', 'time', 'company', 'country', 'hall', 'stand', 'contact', 'role', 'product_group',
-    'priority', 'created_by', 'note', 'price_volume', 'follow_ups', 'photos', 'business_card', 'voice_memo', 'meeting_id'];
+  const head = ['note_id', 'date', 'time', 'company', 'country', 'hall', 'stand', 'contact', 'role', 'product_groups', 'other_group',
+    'priority', 'created_by', 'note', 'price_volume', 'follow_ups', 'photos', 'handwritten_pages', 'business_card', 'voice_memo', 'meeting_id'];
   const rows = notes.map(n => {
     const ts = d.tasks.filter(t => t.noteId === n.id);
     const as = d.attachments.filter(a => a.noteId === n.id);
-    return [n.id, EVENT.dates[n.day], n.time, n.company, n.country, n.hall, n.stand, n.contact, n.role, n.group,
+    return [n.id, EVENT.dates[n.day], n.time, n.company, n.country, n.hall, n.stand, n.contact, n.role, n.groups.join('|'), n.otherGroup,
       n.priority, n.createdBy, n.text, n.price,
       ts.map(t => `${t.done ? '[x]' : '[ ]'} ${t.text} (${t.owner}, ${t.dueDate})`).join(' | '),
-      as.filter(a => a.type === 'photo').length, as.some(a => a.type === 'card') ? 'yes' : 'no',
+      as.filter(a => a.type === 'photo').length, as.filter(a => a.type === 'page').length, as.some(a => a.type === 'card') ? 'yes' : 'no',
       as.some(a => a.type === 'voice') ? 'yes' : 'no', n.meetingId ?? ''];
   });
   return csv([head, ...rows]);
@@ -61,10 +62,10 @@ export function meetingsCsv(meetings: Meeting[]) {
 
 /** One row per supplier contact — the shape most CRMs import as leads/accounts. */
 export function crmCsv(d: Data, notes: Note[]) {
-  const head = ['company', 'country', 'contact_name', 'contact_role', 'source', 'visit_date', 'stand', 'product_group',
+  const head = ['company', 'country', 'contact_name', 'contact_role', 'source', 'visit_date', 'stand', 'product_groups',
     'lead_rating', 'notes', 'price_volume', 'open_follow_ups', 'account_owner'];
   return csv([head, ...notes.map(n => [n.company, n.country, n.contact, n.role, EVENT.name, EVENT.dates[n.day], n.stand,
-    n.group, n.priority, n.text, n.price,
+    groupLabel(n, TX.en), n.priority, n.text, n.price,
     d.tasks.filter(t => t.noteId === n.id && !t.done).map(t => `${t.text} (${t.owner}, ${t.dueDate})`).join(' | '),
     n.createdBy])]);
 }
@@ -77,7 +78,7 @@ export function noteSummary(d: Data, n: Note, L: L) {
     `${n.company.toUpperCase()}`,
     `${n.country ? n.country + ' · ' : ''}${L.hall} ${n.hall} · ${n.stand}`,
     `${L.contact}: ${n.contact}${n.role ? ' (' + n.role + ')' : ''}`,
-    `${L.group}: ${L.groups[n.group]} · ${L.priority}: ${L.pri[n.priority]}`,
+    `${L.group}: ${groupLabel(n, L)} · ${L.priority}: ${L.pri[n.priority]}`,
     `${L.loggedAt}: ${fmtDate(EVENT.dates[n.day], L)} ${n.time} ${L.by} ${n.createdBy}`,
   ];
   if (n.price) lines.push(`${L.price}: ${n.price}`);
@@ -102,7 +103,7 @@ export function buildJson(d: Data, withMediaPaths: boolean) {
   const version = Constants.expoConfig?.version ?? '1.0.0';
   return {
     schema: 'luitenfood.sial-notes.export',
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
     exportedBy: d.settings.me,
     app: { name: 'SIAL Notes', version, platform: Platform.OS },
@@ -111,7 +112,8 @@ export function buildJson(d: Data, withMediaPaths: boolean) {
       'Exhibition visit notes logged by the Luiten Food team at SIAL Paris 2026. ' +
       'notes[] are supplier stand visits (with their follow-up tasks and attachments embedded); ' +
       'meetings[] are planned appointments (noteId links to the note logged for it). ' +
-      'priority: hot|warm|cold. group: beef|lamb|poultry|game|pork|duck. day is an index into event.days. ' +
+      'priority: hot|warm|cold. groups: one or more of beef|lamb|poultry|game|pork|duck|other (otherGroup holds the free text for "other"). ' +
+      'day is an index into event.days. Attachments of type "page" are photos of handwritten notes; their OCR text is already in the note text. ' +
       'Times are local (Europe/Paris). Attachment "file" paths are relative to the ZIP root when media is included.',
     team: OWNERS,
     counts: {
@@ -137,11 +139,11 @@ export function buildJson(d: Data, withMediaPaths: boolean) {
 
 const README = `SIAL Notes — full export
 ========================
-data.json      Everything in one structured file (schema "luitenfood.sial-notes.export", v1). Start here.
+data.json      Everything in one structured file (schema "luitenfood.sial-notes.export", v2). Start here.
 notes.csv      One row per stand visit.
 tasks.csv      One row per follow-up.
 meetings.csv   One row per planned meeting.
-media/         Photos, business cards (jpg) and voice memos (m4a), per note id.
+media/         Photos, business cards, handwritten note pages (jpg) and voice memos (m4a), per note id.
 CSV files use ";" as separator and UTF-8 with BOM.
 `;
 

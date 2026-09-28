@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Alert, Animated, BackHandler, Dimensions, Image, KeyboardAvoidingView, Pressable, ScrollView, Text, View,
+  ActivityIndicator, Alert, Animated, BackHandler, Dimensions, Image, KeyboardAvoidingView, Pressable, ScrollView, Text, View,
 } from 'react-native';
 import {
   RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState,
 } from 'expo-audio';
 import { DEFAULT_DUE, DUE_OPTIONS, GROUPS, OWNERS, fmtDate, uid } from '../constants';
+import { recognize, ocrSupported } from '../../modules/sial-ocr/src';
 import { fmtDuration, persist, removeFile, takePhoto } from '../media';
 import { Draft, DraftAttachment, useStore } from '../store';
 import { C, F, ls } from '../theme';
@@ -19,7 +20,7 @@ export interface CaptureInit {
 }
 
 const emptyDraft = (me: string): Draft => ({
-  company: '', stand: '', contact: '', country: '', role: '', group: 'beef', priority: 'warm', text: '', price: '',
+  company: '', stand: '', contact: '', country: '', role: '', groups: [], otherGroup: '', priority: 'warm', text: '', price: '',
   task: '', owner: me, due: DEFAULT_DUE, attachments: [],
 });
 
@@ -34,7 +35,7 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
     if (n) {
       return {
         ...base, company: n.company, stand: n.stand === '–' ? '' : n.stand, contact: n.contact === L.unknown ? '' : n.contact,
-        country: n.country, role: n.role, group: n.group, priority: n.priority, text: n.text, price: n.price,
+        country: n.country, role: n.role, groups: n.groups, otherGroup: n.otherGroup, priority: n.priority, text: n.text, price: n.price,
         attachments: attachments.filter(a => a.noteId === n.id).map(a => ({ id: a.id, type: a.type, uri: a.uri, durationSec: a.durationSec, isNew: false })),
       };
     }
@@ -43,6 +44,7 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
   const [removed, setRemoved] = useState<DraftAttachment[]>([]);
   const [companyError, setCompanyError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [ocr, setOcr] = useState<'idle' | 'reading' | 'added' | 'none' | 'fail'>('idle');
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const rec = useAudioRecorderState(recorder, 250);
 
@@ -71,7 +73,34 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
       const old = f.attachments.filter(a => a.type === type);
       if (old.length) setRemoved(r => [...r, ...old]);
     }
+    return uri;
   };
+
+  const toggleGroup = (g: Draft['groups'][number]) =>
+    setF(s => ({ ...s, groups: s.groups.includes(g) ? s.groups.filter(x => x !== g) : [...s.groups, g] }));
+
+  /** Photograph a handwritten page, keep it as attachment and append its OCR text to the note. */
+  const scanPage = async (gallery: boolean) => {
+    const r = await takePhoto(gallery);
+    if (r === 'denied') { Alert.alert(L.permCam); return; }
+    if (!r) return;
+    const uri = addAtt('page', r, null, 'jpg');
+    setOcr('reading');
+    try {
+      const blocks = await recognize(uri);
+      const text = blocks.map(lines => lines.join('\n')).join('\n\n').trim();
+      if (!text) { setOcr('none'); return; }
+      setF(s => ({ ...s, text: s.text.trim() ? s.text.trimEnd() + '\n\n' + text : text }));
+      setOcr('added');
+    } catch {
+      setOcr('fail');
+    }
+  };
+  const pickPage = () => Alert.alert(L.scanNotes, undefined, [
+    { text: L.cancel, style: 'cancel' },
+    { text: L.gallery, onPress: () => scanPage(true) },
+    { text: L.camera, onPress: () => scanPage(false) },
+  ]);
 
   const removeAtt = (a: DraftAttachment) => Alert.alert(L.removeQ, undefined, [
     { text: L.no, style: 'cancel' },
@@ -167,12 +196,12 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
           </View>
 
           <View style={{ gap: 8 }}>
-            <Text style={sectionLabel}>{L.group}</Text>
+            <Text style={sectionLabel}>{L.group} <Text style={{ fontFamily: F.b400, fontSize: 13, color: C.navy500 }}>· {L.groupHint}</Text></Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {GROUPS.map(g => {
-                const on = f.group === g.id;
+                const on = f.groups.includes(g.id);
                 return (
-                  <Pressable key={g.id} onPress={() => set('group', g.id)} style={{
+                  <Pressable key={g.id} onPress={() => toggleGroup(g.id)} accessibilityRole="checkbox" accessibilityState={{ checked: on }} style={{
                     width: '31.8%', borderWidth: on ? 2 : 1, borderColor: on ? C.navy : C.grey400, backgroundColor: on ? C.green100 : C.white,
                     paddingTop: on ? 9 : 10, paddingBottom: on ? 7 : 8, paddingHorizontal: 4, alignItems: 'center', gap: 6,
                   }}>
@@ -182,6 +211,9 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
                 );
               })}
             </View>
+            {f.groups.includes('other') ? (
+              <Input value={f.otherGroup} onChangeText={v => set('otherGroup', v)} placeholder={L.otherPh} autoFocus={!f.otherGroup} />
+            ) : null}
           </View>
 
           <View style={{ gap: 8 }}>
@@ -197,7 +229,29 @@ export default function Capture({ init, day, topInset, bottomInset, onClose, onS
             </View>
           </View>
 
-          <Input label={L.note} multiline rows={4} value={f.text} onChangeText={v => set('text', v)} placeholder={L.notePh} />
+          <View style={{ gap: 8 }}>
+            <Input label={L.note} multiline rows={4} value={f.text} onChangeText={v => set('text', v)} placeholder={L.notePh} />
+            {ocrSupported ? (
+              <Pressable onPress={pickPage} disabled={ocr === 'reading'} style={({ pressed }) => ({
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10,
+                borderWidth: 2, borderColor: C.navy, backgroundColor: pressed ? C.navy : C.white, opacity: ocr === 'reading' ? 0.6 : 1,
+              })}>
+                {({ pressed }) => (
+                  <>
+                    {ocr === 'reading' ? <ActivityIndicator color={pressed ? C.white : C.navy} /> : <Icon name="scan" color={pressed ? C.white : C.navy} size={20} />}
+                    <Text style={{ fontFamily: F.d500, fontSize: 15, textTransform: 'uppercase', letterSpacing: ls(0.04, 15), color: pressed ? C.white : C.navy }}>
+                      {ocr === 'reading' ? L.reading : L.scanNotes}
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            ) : null}
+            {ocr === 'added' || ocr === 'none' || ocr === 'fail' ? (
+              <Text style={{ fontFamily: F.b400, fontSize: 13, color: ocr === 'added' ? C.accent : C.error }}>
+                {ocr === 'added' ? L.ocrAdded : ocr === 'none' ? L.ocrNone : L.ocrFail}
+              </Text>
+            ) : null}
+          </View>
           {settings.showPrices ? <Input label={L.price} value={f.price} onChangeText={v => set('price', v)} placeholder={L.pricePh} /> : null}
 
           <View style={{ flexDirection: 'row', gap: 8 }}>

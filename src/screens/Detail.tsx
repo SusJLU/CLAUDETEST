@@ -42,7 +42,7 @@ export default function Detail({ id, nav, backLabel, onClose, onEdit }: {
   if (!n) return null;
   const ts = tasks.filter(t => t.noteId === n.id);
   const atts = attachments.filter(a => a.noteId === n.id);
-  const media = [...atts.filter(a => a.type === 'card'), ...atts.filter(a => a.type === 'photo'), ...atts.filter(a => a.type === 'voice')];
+  const media = [...atts.filter(a => a.type === 'card'), ...atts.filter(a => a.type === 'page'), ...atts.filter(a => a.type === 'photo'), ...atts.filter(a => a.type === 'voice')];
 
   const emailSummary = async () => {
     const data: Data = { ...store };
@@ -86,7 +86,18 @@ export default function Detail({ id, nav, backLabel, onClose, onEdit }: {
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 120, gap: 20 }}>
         <Card>
           {row(L.contact, <Text style={{ fontFamily: F.b600, fontSize: 14, color: C.navy }}>{n.contact} <Text style={{ fontFamily: F.b400, color: C.navy500 }}>· {n.role || '—'}</Text></Text>)}
-          {row(L.group, <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><AnimalIcon group={n.group} w={30} h={20} /><Text style={{ fontFamily: F.b600, fontSize: 14, color: C.navy }}>{L.groups[n.group]}</Text></View>)}
+          {row(L.group, n.groups.length ? (
+            <View style={{ gap: 6 }}>
+              {n.groups.map(g => (
+                <View key={g} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <AnimalIcon group={g} w={30} h={20} />
+                  <Text style={{ flex: 1, fontFamily: F.b600, fontSize: 14, color: C.navy }}>
+                    {g === 'other' && n.otherGroup ? L.groups.other + ': ' + n.otherGroup : L.groups[g]}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : <Text style={{ fontFamily: F.b400, fontSize: 14, color: C.navy500 }}>—</Text>)}
           {row(L.loggedAt, <Text style={{ fontFamily: F.b400, fontSize: 14, color: C.navy }}>{fmtDate(EVENT.dates[n.day], L)} {n.time} {L.by} {n.createdBy}</Text>, true)}
         </Card>
 
@@ -111,7 +122,7 @@ export default function Detail({ id, nav, backLabel, onClose, onEdit }: {
                     <Image source={{ uri: a.uri }} style={{ width: '100%', height: '100%' }} />
                     <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(2,45,78,.7)', paddingVertical: 3, paddingHorizontal: 6 }}>
                       <Text numberOfLines={1} style={{ fontFamily: F.d400, fontSize: 10, textTransform: 'uppercase', letterSpacing: ls(0.06, 10), color: C.white }}>
-                        {a.type === 'card' ? L.businessCard : L.photoL}
+                        {a.type === 'card' ? L.businessCard : a.type === 'page' ? L.handwritten : L.photoL}
                       </Text>
                     </View>
                   </Pressable>

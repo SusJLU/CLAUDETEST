@@ -15,8 +15,15 @@ export const GROUPS: { id: Group; icon: string }[] = [
   { id: 'game', icon: 'hert' },
   { id: 'pork', icon: 'varken' },
   { id: 'duck', icon: 'eend' },
+  { id: 'other', icon: '' },
 ];
 export const GROUP_ICON = Object.fromEntries(GROUPS.map(g => [g.id, g.icon])) as Record<Group, string>;
+
+/** "Rund, Lam, Overig: vis" */
+export const groupLabel = (n: { groups: Group[]; otherGroup: string }, L: L) =>
+  n.groups.length
+    ? n.groups.map(g => (g === 'other' && n.otherGroup.trim() ? L.groups.other + ': ' + n.otherGroup.trim() : L.groups[g])).join(', ')
+    : '—';
 
 export const TONE: Record<Priority, 'green' | 'tint' | 'grey'> = { hot: 'green', warm: 'tint', cold: 'grey' };
 

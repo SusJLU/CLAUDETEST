@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-appcompat-1.7.0-16:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
+    },
+    {
+        "merged": "com.luitenfood.sialocr.sial-ocr-release-3:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "source": "com.luitenfood.sialocr.sial-ocr-appcompat-1.7.0-16:/layout-watch-v20/abc_alert_dialog_title_material.xml"
+    }
+]
