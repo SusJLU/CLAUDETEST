@@ -42,3 +42,4 @@ yarn-error.*
 
 # Release signing (keep private)
 /credentials/
+/dist/
