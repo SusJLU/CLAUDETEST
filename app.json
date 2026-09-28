@@ -1,25 +1,69 @@
 {
   "expo": {
-    "name": "sialapp",
-    "slug": "sialapp",
+    "name": "SIAL Notes",
+    "slug": "sial-notes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F5F6",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.luitenfood.sialnotes",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Take photos of stands, samples and business cards.",
+        "NSMicrophoneUsageDescription": "Record voice memos for stand visits.",
+        "NSPhotoLibraryUsageDescription": "Attach photos from your library to a note."
+      }
     },
     "android": {
+      "package": "com.luitenfood.sialnotes",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#022D4E",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 260,
+          "backgroundColor": "#022D4E"
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Record voice memos for stand visits."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Take photos of stands, samples and business cards.",
+          "photosPermission": "Attach photos from your library to a note."
+        }
+      ],
+      "expo-sharing",
+      "expo-mail-composer",
+      "expo-font",
+      "expo-asset",
+      "./plugins/withReleaseSigning"
+    ]
   }
 }
