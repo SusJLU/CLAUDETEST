@@ -80,6 +80,8 @@ cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,arm
 # → android/app/build/outputs/apk/release/app-release.apk
 ```
 
+**Size:** R8 minify, resource shrinking and compressed native libs are enabled via `expo-build-properties` in `app.json` (APK ≈ 22 MB).
+
 **Signing:** release builds are signed with the keystore described in `credentials/keystore.properties`
 (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; the `.jks` sits in `credentials/`). That folder is
 git-ignored — keep the keystore safe: updates only install over an existing app when they are signed with the
