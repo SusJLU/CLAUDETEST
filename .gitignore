@@ -43,3 +43,6 @@ yarn-error.*
 # Release signing (keep private)
 /credentials/
 /dist/
+
+# Local module build output
+modules/*/android/build/
