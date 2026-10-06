@@ -241,8 +241,8 @@ def init_db():
         write_private(os.path.join(DATA, 'EERSTE-WACHTWOORD.txt'),
                       'Gebruikersnaam: beheerder\nWachtwoord: %s\n\nBij de eerste keer inloggen kies je een eigen wachtwoord.\n'
                       'Verwijder daarna dit bestand.\n' % first)
+    con.commit()  # journal_mode kan niet binnen een open transactie wijzigen (anders faalt elke herstart)
     con.execute('PRAGMA journal_mode=WAL')
-    con.commit()
     con.close()
     return first
 
@@ -1028,4 +1028,6 @@ if __name__ == '__main__':
         print('\n  EERSTE KEER - log in als beheerder:\n    gebruikersnaam: beheerder\n    wachtwoord:     %s' % first)
         print('  (staat ook in data/EERSTE-WACHTWOORD.txt; je kiest direct een eigen wachtwoord)')
     print('\n  Laat dit venster open. Sluiten = app stopt.\n' + line + '\n')
-    serve(app, host=HOST, port=PORT, threads=8, ident='')
+    # Achter de HTTPS-proxy: laat Waitress X-Forwarded-* doorgeven aan ProxyFix (anders ziet de app http en
+    # weigert de Origin-controle elke inlog). Veilig: in publieke modus luistert de app alleen intern.
+    serve(app, host=HOST, port=PORT, threads=8, ident='', clear_untrusted_proxy_headers=not PUBLIC)
