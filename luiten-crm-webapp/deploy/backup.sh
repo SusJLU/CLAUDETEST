@@ -1,7 +1,7 @@
 #!/bin/sh
 # Versleutelde dagelijkse back-up van Luiten CRM.
-# Vereist: apt install age. Maak de sleutel op een ANDERE computer: age-keygen -o luiten-crm-backup.key
-# en zet alleen de publieke sleutel (age1...) hieronder. Zonder de privésleutel is de back-up onleesbaar.
+# Vereist: apt install age. Sleutel maken: zie DEPLOYMENT.md stap 9.1 (privésleutel alleen in de wachtwoordkluis).
+# Zet alleen de publieke sleutel (age1...) hieronder. Zonder de privésleutel is de back-up onleesbaar.
 # Cron (root):  15 2 * * *  /opt/luiten-crm/deploy/backup.sh
 set -eu
 AGE_RECIPIENT="age1VERVANG-DOOR-JE-PUBLIEKE-SLEUTEL"
@@ -23,4 +23,3 @@ STAMP=$(date +%Y%m%d_%H%M)
 tar -C "$TMP" -czf - . | age -r "$AGE_RECIPIENT" -o "$OUT/luiten-crm-$STAMP.tar.gz.age"
 find "$OUT" -name 'luiten-crm-*.tar.gz.age' -mtime +"$KEEP_DAYS" -delete
 echo "Back-up: $OUT/luiten-crm-$STAMP.tar.gz.age"
-# Kopieer de back-ups ook naar een plek buiten deze server (rsync/rclone naar opslag van Luiten).

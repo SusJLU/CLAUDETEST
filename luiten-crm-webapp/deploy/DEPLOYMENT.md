@@ -26,7 +26,6 @@ Benodigde tijd: ongeveer 1 tot 1,5 uur.
 - [ ] Een wachtwoordkluis voor: het **schijfwachtwoord**, het wachtwoord van de Linux-gebruiker, het beheerderswachtwoord van de app en de **back-upsleutel**.
 - [ ] Op je eigen pc: een terminal met `ssh` en `scp` (Windows 10/11: PowerShell heeft die standaard).
 - [ ] De map `luiten-crm-webapp` uit de repository (of als zip).
-- [ ] Een plek buiten de VPS voor back-ups (kantoor-pc, NAS of zakelijke cloudopslag).
 
 > **Afspraak vooraf:** na **elke herstart** van de VPS (ook bij onderhoud door TransIP) moet iemand het
 > schijfwachtwoord intypen in de TransIP-console. Tot die tijd is de app offline. Leg vast wie dat doet.
@@ -250,18 +249,25 @@ Verwacht: `HTTP/2 200` (of `HTTP/1.1 200`) en een `Strict-Transport-Security`-re
 
 ## 9. Versleutelde back-up
 
-### 9.1 Sleutel maken *(op een andere computer dan de VPS)*
+Elke nacht maakt de server een versleutelde back-up in `/var/backups/luiten-crm/` (30 dagen bewaard).
+Controleer in het TransIP-controlepaneel of de VPS-back-ups van TransIP aanstaan; die zijn bij een versleutelde schijf ook versleuteld.
 
-Installeer `age` (Windows: `winget install FiloSottile.age`) en maak een sleutelpaar:
+### 9.1 Sleutel maken *(op de server)*
 
-```powershell
-age-keygen -o luiten-crm-backup.key
+```bash
+$ age-keygen -o ~/luiten-crm-backup.key
+$ cat ~/luiten-crm-backup.key
 ```
 
-- Bewaar `luiten-crm-backup.key` in de kluis (en een tweede kopie op een veilige plek). **Zonder dit bestand kan niemand een back-up terugzetten.**
-- De regel `# public key: age1…` is de publieke sleutel; alleen die gaat naar de server.
+1. Kopieer de **volledige inhoud** (alle drie de regels, inclusief `AGE-SECRET-KEY-…`) naar de wachtwoordkluis,
+   als notitie "Luiten CRM back-upsleutel". **Zonder deze sleutel kan niemand een back-up terugzetten.**
+2. Noteer de regel `# public key: age1…`: dat is de publieke sleutel voor stap 9.2.
+3. Verwijder de privésleutel van de server (anders heeft wie de server heeft ook de sleutel):
+   ```bash
+   $ shred -u ~/luiten-crm-backup.key
+   ```
 
-### 9.2 Back-up instellen *(op de server)*
+### 9.2 Back-up instellen
 
 ```bash
 $ sudo nano /opt/luiten-crm/deploy/backup.sh       # zet de age1…-sleutel bij AGE_RECIPIENT
@@ -272,32 +278,22 @@ $ sudo crontab -e
 Voeg toe (elke nacht om 02:15):
 
 ```
-15 2 * * * /opt/luiten-crm/deploy/backup.sh >/var/log/luiten-crm-backup.log 2>&1 && chmod 755 /var/backups/luiten-crm && chmod 644 /var/backups/luiten-crm/*.age
+15 2 * * * /opt/luiten-crm/deploy/backup.sh >/var/log/luiten-crm-backup.log 2>&1
 ```
 
-Het laatste deel maakt de (versleutelde) back-upbestanden leesbaar voor de gebruiker `beheer`, zodat ze in 9.3
-opgehaald kunnen worden. Zonder de privésleutel zijn ze onleesbaar.
+### 9.3 Terugzetten testen (doe dit één keer nu)
 
-### 9.3 Back-ups buiten de VPS bewaren
+Zet de privésleutel tijdelijk terug op de server en ontsleutel de testback-up:
 
-De back-ups staan in `/var/backups/luiten-crm/`. Haal ze dagelijks op naar een kantoor-pc of NAS, bijvoorbeeld met
-Windows Taakplanner *(op die pc)*:
-
-```powershell
-scp beheer@crm.voorbeeld.nl:/var/backups/luiten-crm/*.age D:\Backups\LuitenCRM\
+```bash
+$ nano ~/backup.key                                # plak de sleutel uit de kluis, opslaan
+$ sudo ls /var/backups/luiten-crm/                 # kies de nieuwste
+$ sudo cat /var/backups/luiten-crm/luiten-crm-JJJJMMDD_UUMM.tar.gz.age | age -d -i ~/backup.key > ~/test.tar.gz
+$ tar -tzf ~/test.tar.gz                           # moet luiten-crm.db, secret.key en uploads/ tonen
+$ shred -u ~/backup.key ~/test.tar.gz              # sleutel en test weer verwijderen
 ```
 
-
-### 9.4 Terugzetten testen (doe dit één keer nu)
-
-*(Op de computer met de sleutel)*:
-
-```powershell
-age -d -i luiten-crm-backup.key luiten-crm-JJJJMMDD_UUMM.tar.gz.age > test.tar.gz
-tar -tzf test.tar.gz        # moet luiten-crm.db, secret.key en uploads/ tonen
-```
-
-Echt terugzetten op de server:
+Echt terugzetten (bij een noodgeval) gaat op dezelfde manier, en daarna:
 
 ```bash
 $ sudo systemctl stop luiten-crm
@@ -305,7 +301,11 @@ $ sudo rm -rf /var/lib/luiten-crm/*
 $ sudo tar -xzf ~/test.tar.gz -C /var/lib/luiten-crm
 $ sudo chown -R lcrm:lcrm /var/lib/luiten-crm && sudo chmod -R go-rwx /var/lib/luiten-crm
 $ sudo systemctl start luiten-crm
+$ shred -u ~/backup.key ~/test.tar.gz
 ```
+
+> Deze back-ups staan op dezelfde VPS: ze helpen bij fouten in de app of per ongeluk verwijderde gegevens, niet als
+> de hele VPS verloren gaat (daarvoor zijn de TransIP-back-ups, als die aanstaan). Een kopie buiten de VPS kan later worden toegevoegd.
 
 ---
 
@@ -317,7 +317,7 @@ $ sudo systemctl start luiten-crm
 - [ ] Tijd van een nieuwe notitie klopt (Nederlandse/Parijse tijd).
 - [ ] Vliegtuigmodus aan → notitie maken → vliegtuigmodus uit → notitie komt binnen.
 - [ ] Exports in Beheer (Excel, ZIP, JSON, CSV) downloaden en openen.
-- [ ] `sudo /opt/luiten-crm/deploy/backup.sh` werkt en de back-up is terug te zetten (9.4).
+- [ ] `sudo /opt/luiten-crm/deploy/backup.sh` werkt en de back-up is terug te zetten (9.3).
 - [ ] **Herstarttest:** `sudo reboot` → schijfwachtwoord invoeren in de TransIP-console → app is na ± 1 minuut weer bereikbaar, gegevens zijn er nog.
 
 ---
