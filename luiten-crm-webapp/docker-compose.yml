@@ -1,0 +1,31 @@
+# Publiek draaien met automatisch HTTPS (Let's Encrypt via Caddy).
+# 1. Kopieer .env.example naar .env en vul je domein in.  2. docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      LCRM_PUBLIC_URL: https://${LCRM_DOMAIN:?vul LCRM_DOMAIN in .env in}
+    volumes:
+      - lcrm_data:/data
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      LCRM_DOMAIN: ${LCRM_DOMAIN}
+      LCRM_UPSTREAM: app:8000
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  lcrm_data:
+    name: lcrm_data
+  caddy_data:
+  caddy_config:

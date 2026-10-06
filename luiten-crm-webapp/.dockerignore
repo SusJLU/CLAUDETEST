@@ -1,0 +1,6 @@
+data
+backups
+.venv
+__pycache__
+*.bat
+.env

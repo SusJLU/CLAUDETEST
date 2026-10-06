@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#022D4E">
+<meta name="referrer" content="same-origin">
+<title>Inloggen · Luiten CRM</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="login">
+<div class="login-box">
+<img src="/static/img/logo-wide.png" alt="Luiten Food × Thomas Foods International">
+<div><h1>Luiten CRM</h1><div class="login-rule" style="margin-top:10px"></div></div>
+<form class="login-card" id="f">
+<label class="fld"><span>Gebruikersnaam</span><input class="inp" id="u" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="64" required></label>
+<label class="fld"><span>Wachtwoord</span><input class="inp" id="p" type="password" autocomplete="current-password" maxlength="128" required></label>
+<div class="err-txt hidden" id="e" style="margin:0"></div>
+<button class="btn primary" type="submit" id="b">Inloggen</button>
+</form>
+<form class="login-card hidden" id="c">
+<b style="font-family:var(--disp);text-transform:uppercase;font-size:18px">Kies een eigen wachtwoord</b>
+<span class="muted" style="line-height:1.5">Minstens 10 tekens. Gebruik bijvoorbeeld een zin van een paar woorden.</span>
+<label class="fld hidden" id="opw"><span>Huidig wachtwoord</span><input class="inp" id="op" type="password" autocomplete="current-password" maxlength="128"></label>
+<label class="fld"><span>Nieuw wachtwoord</span><input class="inp" id="np" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></label>
+<label class="fld"><span>Herhaal nieuw wachtwoord</span><input class="inp" id="np2" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></label>
+<div class="err-txt hidden" id="ce" style="margin:0"></div>
+<button class="btn primary" type="submit" id="cb">Opslaan en verder</button>
+</form>
+<div style="font-size:13px;color:#99ABB9;line-height:1.5">Geen account? Vraag de beheerder om er een voor je aan te maken.</div>
+</div>
+</div>
+<script src="/static/login.js"></script>
+</body>
+</html>

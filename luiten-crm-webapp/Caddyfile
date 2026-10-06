@@ -1,0 +1,8 @@
+{$LCRM_DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 13MB
+	}
+	header -Server
+	reverse_proxy {$LCRM_UPSTREAM:127.0.0.1:8000}
+}
