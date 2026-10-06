@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# Luiten CRM (twonote) – FreeBSD rc.d-script.
+# Installeren:  install -m 555 luitencrm.rc /usr/local/etc/rc.d/luitencrm
+# Aanzetten:    sysrc luitencrm_enable=YES
+#
+# PROVIDE: luitencrm
+# REQUIRE: LOGIN NETWORKING
+# BEFORE: caddy
+# KEYWORD: shutdown
+#
+# Instelbaar in /etc/rc.conf (met sysrc), standaardwaarden hieronder:
+#  luitencrm_enable (bool):  NO
+#  luitencrm_user (str):     luitencrm
+#  luitencrm_dir (str):      /usr/local/www/luitencrm   (map met app.py en static/)
+#  luitencrm_data (str):     /var/db/luitencrm          (database, foto's, sleutel)
+#  luitencrm_url (str):      https://twonote.luitenfood.net
+#  luitencrm_port (int):     8000                       (alleen op 127.0.0.1)
+#  luitencrm_tz (str):       Europe/Amsterdam
+#  luitencrm_log (str):      /var/log/luitencrm.log
+
+. /etc/rc.subr
+
+name=luitencrm
+rcvar=luitencrm_enable
+
+load_rc_config $name
+
+: ${luitencrm_enable:=NO}
+: ${luitencrm_user:=luitencrm}
+: ${luitencrm_dir:=/usr/local/www/luitencrm}
+: ${luitencrm_data:=/var/db/luitencrm}
+: ${luitencrm_url:=https://twonote.luitenfood.net}
+: ${luitencrm_port:=8000}
+: ${luitencrm_tz:=Europe/Amsterdam}
+: ${luitencrm_log:=/var/log/luitencrm.log}
+
+pidfile=/var/run/${name}/${name}.pid
+procname=/usr/sbin/daemon
+command=/usr/sbin/daemon
+# -r: herstart de app automatisch na een crash (na 5 s); -P: pid van de bewaker; -o: uitvoer naar log
+command_args="-r -R 5 -P ${pidfile} -o ${luitencrm_log} -u ${luitencrm_user} -t ${name} ${luitencrm_dir}/app.py"
+luitencrm_env="LCRM_PUBLIC_URL=${luitencrm_url} LCRM_DATA=${luitencrm_data} LCRM_PORT=${luitencrm_port} TZ=${luitencrm_tz} PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1"
+
+start_precmd="${name}_prestart"
+
+luitencrm_prestart()
+{
+	# Datamap en log alleen leesbaar voor de app-gebruiker
+	install -d -o ${luitencrm_user} -g ${luitencrm_user} -m 700 ${luitencrm_data}
+	install -d -o ${luitencrm_user} -g ${luitencrm_user} -m 755 /var/run/${name}
+	if [ ! -e ${luitencrm_log} ]; then
+		install -o ${luitencrm_user} -g ${luitencrm_user} -m 600 /dev/null ${luitencrm_log}
+	fi
+}
+
+run_rc_command "$1"

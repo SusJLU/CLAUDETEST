@@ -1,7 +1,8 @@
-"""Luiten CRM - webapp (Flask + SQLite).
+#!/usr/local/bin/python
+"""Luiten CRM - webapp (Flask + SQLite), alleen standaard Python + Flask/openpyxl uit de FreeBSD ports.
 
-Lokaal:   start.bat  (of: python app.py)
-Publiek:  zet LCRM_PUBLIC_URL=https://jouw-domein en draai achter Caddy (zie LEESMIJ.md, hoofdstuk 9).
+Productie: draait achter Caddy (HTTPS) via het rc.d-script in deploy/, met LCRM_PUBLIC_URL=https://<domein>.
+Lokaal testen: ./app.py  (http op poort 8000, alleen voor een vertrouwd netwerk)
 """
 import csv, io, json, os, re, secrets, socket, sqlite3, sys, threading, time, zipfile, datetime as dt
 from functools import lru_cache, wraps
@@ -9,6 +10,7 @@ from flask import Flask, abort, g, jsonify, redirect, request, send_file, send_f
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import check_password_hash, generate_password_hash
 
+APP_VERSION = '2026.10.1'
 ENV = os.environ.get
 BASE = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(BASE, 'static')
@@ -368,6 +370,28 @@ def home():
 app.add_url_rule('/login', 'login_page', lambda: page('login.html'))
 app.add_url_rule('/app', 'app_page', lambda: gate('app'))
 app.add_url_rule('/admin', 'admin_page', lambda: gate('admin'))
+
+
+# ---------- health (voor de statuspagina, zonder login) ----------
+@app.get('/health')
+def health():
+    checks = {}
+    try:
+        con = sqlite3.connect('file:%s?mode=ro' % DB_PATH, uri=True, timeout=3)
+        try:
+            con.execute('SELECT 1 FROM users LIMIT 1').fetchone()
+        finally:
+            con.close()
+        checks['database'] = 'ok'
+    except sqlite3.Error:
+        checks['database'] = 'error'
+    checks['storage'] = 'ok' if os.access(UPLOADS, os.W_OK) else 'error'
+    ok = all(v == 'ok' for v in checks.values())
+    r = jsonify(status='ok' if ok else 'error', version=APP_VERSION, **checks,
+                time=dt.datetime.now().astimezone().isoformat(timespec='seconds'))
+    r.status_code = 200 if ok else 503
+    r.headers['Cache-Control'] = 'no-store'
+    return r
 
 
 # ---------- data ----------
@@ -1010,24 +1034,45 @@ def export_zip(u):
 
 
 # ---------- start ----------
+def run_server():
+    """Threaded HTTP-server uit de standaardbibliotheek (wsgiref); bedoeld achter Caddy."""
+    from socketserver import ThreadingMixIn
+    from wsgiref.simple_server import WSGIRequestHandler, WSGIServer, make_server
+
+    class Server(ThreadingMixIn, WSGIServer):
+        daemon_threads = True
+        allow_reuse_address = True
+        request_queue_size = 128  # standaard 5: geeft vertraging bij veel gelijktijdige verzoeken
+
+    class Handler(WSGIRequestHandler):
+        timeout = 60  # hangende verbindingen niet eindeloos vasthouden
+        server_version, sys_version = 'LuitenCRM', ''
+
+        def log_request(self, code='-', size='-'):  # toegangslog staat al in Caddy; alleen 5xx loggen
+            if str(getattr(code, 'value', code)).startswith('5'):
+                super().log_request(code, size)
+
+    httpd = make_server(HOST, PORT, app, server_class=Server, handler_class=Handler)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        httpd.server_close()
+
+
 if __name__ == '__main__':
     if PUBLIC_URL and not PUBLIC:
         sys.exit('LCRM_PUBLIC_URL moet met https:// beginnen.')
-    try:
-        from waitress import serve
-    except ImportError:
-        sys.exit('waitress ontbreekt. Voer uit: pip install -r requirements.txt')
     first = init_db()
     line = '=' * 62
-    print('\n' + line + '\n  LUITEN CRM draait')
+    print('\n' + line + '\n  LUITEN CRM %s draait' % APP_VERSION)
     if PUBLIC:
         print('  Publiek adres:  %s   (via HTTPS-proxy, intern op %s:%d)' % (PUBLIC_URL, HOST, PORT))
     else:
-        print('  Op deze laptop:      http://localhost:%d\n  Op telefoons (wifi): %s' % (PORT, app_url()))
+        print('  Lokaal (alleen testen): http://localhost:%d  /  %s' % (PORT, app_url()))
     if first:
         print('\n  EERSTE KEER - log in als beheerder:\n    gebruikersnaam: beheerder\n    wachtwoord:     %s' % first)
-        print('  (staat ook in data/EERSTE-WACHTWOORD.txt; je kiest direct een eigen wachtwoord)')
-    print('\n  Laat dit venster open. Sluiten = app stopt.\n' + line + '\n')
-    # Achter de HTTPS-proxy: laat Waitress X-Forwarded-* doorgeven aan ProxyFix (anders ziet de app http en
-    # weigert de Origin-controle elke inlog). Veilig: in publieke modus luistert de app alleen intern.
-    serve(app, host=HOST, port=PORT, threads=8, ident='', clear_untrusted_proxy_headers=not PUBLIC)
+        print('  (staat ook in %s; je kiest direct een eigen wachtwoord)' % os.path.join(DATA, 'EERSTE-WACHTWOORD.txt'))
+    print(line + '\n', flush=True)
+    run_server()

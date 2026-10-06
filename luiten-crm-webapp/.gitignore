@@ -1,5 +1,3 @@
 data/
 backups/
-.venv/
 __pycache__/
-.env

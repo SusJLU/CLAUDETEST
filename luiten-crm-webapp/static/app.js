@@ -1,4 +1,4 @@
-/* Luiten CRM – mobiele app. Offline: wijzigingen gaan eerst in een wachtrij (IndexedDB) en worden verstuurd zodra de laptop bereikbaar is. */
+/* Luiten CRM – mobiele app. Offline: wijzigingen gaan eerst in een wachtrij (IndexedDB) en worden verstuurd zodra de server bereikbaar is. */
 (() => {
 'use strict';
 const ST = window.STATIC || '/static/';
@@ -19,7 +19,7 @@ nl: {tabs:['Vandaag','Notities','Acties','Overzicht'], wd:['zo','ma','di','wo','
  recent:'Recente notities', allNotes:'Alle notities →', noNotes:'Nog geen notities op deze dag.', search:'Zoek bedrijf, contact, stand', all:'Alle', hot:'Hot',
  allDays:'alle dagen', n1:'notitie', nN:'notities', noMatch:'Geen notities gevonden.', open:'Open', done:'Klaar', everyone:'Iedereen', due:'Deadline', late:'te laat',
  nothing:'Niets in deze lijst.', summary:'Dagoverzicht', visits:'Bezoeken', newTasks:'Nieuwe acties', byGroup:'Per productgroep', noHot:'Geen hot leads op deze dag.',
- perPerson:'Open acties per persoon', export:'Exporteren', exportDesc:'Download de gegevens die je mag zien. Werkt alleen als de laptop bereikbaar is.',
+ perPerson:'Open acties per persoon', export:'Exporteren', exportDesc:'Download de gegevens die je mag zien. Werkt alleen als de server bereikbaar is.',
  csvDay:'CSV · notities van deze dag', xlsx:'Excel · alles', json:'JSON · alles', zip:'ZIP · alles + foto’s', edit:'Wijzig', note:'Notitie', attachments:'Bijlagen',
  tasks:'Acties', noVisitTasks:'Geen acties voor dit bezoek.', newNote:'Nieuwe notitie', editNote:'Wijzig notitie', company:'Bedrijf', companyPh:'Leverancier of klant',
  companyErr:'Vul een bedrijfsnaam in', country:'Land', countryPh:'bijv. Argentinië', hall:'Hal', stand:'Stand', stage:'Fase in pijplijn', contact:'Contactpersoon',
@@ -30,8 +30,8 @@ nl: {tabs:['Vandaag','Notities','Acties','Overzicht'], wd:['zo','ma','di','wo','
  settings:'Instellingen', language:'Taal', loggedIn:'Ingelogd als', logout:'Uitloggen', logoutPending:'Er staan nog wijzigingen in de wachtrij. Toch uitloggen? Ze gaan dan verloren.',
  syncNow:'Nu synchroniseren', admin:'Beheer openen →', pw:'Wachtwoord wijzigen', pwOld:'Huidig wachtwoord', pwNew:'Nieuw wachtwoord', pwSave:'Wachtwoord opslaan', pwOk:'Wachtwoord gewijzigd',
  meeting:'Afspraak', newMeeting:'Nieuwe afspraak', date:'Datum', time:'Tijd', save:'Opslaan', delete:'Verwijderen',
- tSaved:'Notitie opgeslagen', tSavedOn:'Verstuurd naar de laptop.', tSavedOff:'Opgeslagen op deze telefoon. Wordt verstuurd zodra de laptop bereikbaar is.',
- tMeet:'Afspraak opgeslagen', tDel:'Verwijderd', syncErr:'Niet opgeslagen op de laptop', offlineExport:'Geen verbinding met de laptop', tomorrow:'Morgen', in3:'Over 3 dagen', week:'Over 1 week', weeks2:'Over 2 weken', noDue:'Geen',
+ tSaved:'Notitie opgeslagen', tSavedOn:'Verstuurd naar de server.', tSavedOff:'Opgeslagen op deze telefoon. Wordt verstuurd zodra de server bereikbaar is.',
+ tMeet:'Afspraak opgeslagen', tDel:'Verwijderd', syncErr:'Niet opgeslagen op de server', offlineExport:'Geen verbinding met de server', tomorrow:'Morgen', in3:'Over 3 dagen', week:'Over 1 week', weeks2:'Over 2 weken', noDue:'Geen',
  roles:{beheerder:'Beheerder', inkoop:'Inkoop', verkoop:'Verkoop'},
  groups:{beef:'Rund',lamb:'Lam',poultry:'Gevogelte',game:'Wild',pork:'Ibérico / varken',duck:'Eend & gans',other:'Overig'}, pri:{hot:'Hot lead',warm:'Warm',cold:'Koud'},
  stages:{lev:{lead:'Lead',specs:'Monsters & specs',prijs:'Prijsonderhandeling',proef:'Proeforder',vast:'Vaste leverancier'},klant:{lead:'Lead',offerte:'Offerte',onderh:'Onderhandeling',won:'Gewonnen',lost:'Verloren'}},
@@ -44,7 +44,7 @@ en: {tabs:['Today','Notes','Follow-ups','Summary'], wd:['Sun','Mon','Tue','Wed',
  recent:'Recent notes', allNotes:'All notes →', noNotes:'No notes for this day yet.', search:'Search company, contact, stand', all:'All', hot:'Hot',
  allDays:'all days', n1:'note', nN:'notes', noMatch:'No notes found.', open:'Open', done:'Done', everyone:'Everyone', due:'Due', late:'overdue',
  nothing:'Nothing in this list.', summary:'Day summary', visits:'Visits', newTasks:'New follow-ups', byGroup:'By product group', noHot:'No hot leads this day.',
- perPerson:'Open follow-ups per person', export:'Export', exportDesc:'Download the data you are allowed to see. Only works when the laptop can be reached.',
+ perPerson:'Open follow-ups per person', export:'Export', exportDesc:'Download the data you are allowed to see. Only works when the server can be reached.',
  csvDay:'CSV · notes of this day', xlsx:'Excel · everything', json:'JSON · everything', zip:'ZIP · everything + photos', edit:'Edit', note:'Note', attachments:'Attachments',
  tasks:'Follow-ups', noVisitTasks:'No follow-ups for this visit.', newNote:'New note', editNote:'Edit note', company:'Company', companyPh:'Supplier or customer',
  companyErr:'Enter a company name', country:'Country', countryPh:'e.g. Argentina', hall:'Hall', stand:'Stand', stage:'Pipeline stage', contact:'Contact person',
@@ -55,8 +55,8 @@ en: {tabs:['Today','Notes','Follow-ups','Summary'], wd:['Sun','Mon','Tue','Wed',
  settings:'Settings', language:'Language', loggedIn:'Logged in as', logout:'Log out', logoutPending:'There are unsent changes. Log out anyway? They will be lost.',
  syncNow:'Sync now', admin:'Open admin →', pw:'Change password', pwOld:'Current password', pwNew:'New password', pwSave:'Save password', pwOk:'Password changed',
  meeting:'Meeting', newMeeting:'New meeting', date:'Date', time:'Time', save:'Save', delete:'Delete',
- tSaved:'Note saved', tSavedOn:'Sent to the laptop.', tSavedOff:'Stored on this phone. Will be sent when the laptop can be reached.',
- tMeet:'Meeting saved', tDel:'Deleted', syncErr:'Not saved on the laptop', offlineExport:'No connection to the laptop', tomorrow:'Tomorrow', in3:'In 3 days', week:'In 1 week', weeks2:'In 2 weeks', noDue:'None',
+ tSaved:'Note saved', tSavedOn:'Sent to the server.', tSavedOff:'Stored on this phone. Will be sent when the server can be reached.',
+ tMeet:'Meeting saved', tDel:'Deleted', syncErr:'Not saved on the server', offlineExport:'No connection to the server', tomorrow:'Tomorrow', in3:'In 3 days', week:'In 1 week', weeks2:'In 2 weeks', noDue:'None',
  roles:{beheerder:'Admin', inkoop:'Purchasing', verkoop:'Sales'},
  groups:{beef:'Beef',lamb:'Lamb',poultry:'Poultry',game:'Game',pork:'Ibérico / pork',duck:'Duck & goose',other:'Other'}, pri:{hot:'Hot lead',warm:'Warm',cold:'Cold'},
  stages:{lev:{lead:'Lead',specs:'Samples & specs',prijs:'Price negotiation',proef:'Trial order',vast:'Regular supplier'},klant:{lead:'Lead',offerte:'Quote',onderh:'Negotiation',won:'Won',lost:'Lost'}},
@@ -512,7 +512,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
   } catch (e) {
     S.online = false;
     try { const me = JSON.parse(localStorage.getItem('lcrm-last-me') || 'null'); if (me) { S.me = me; const c = JSON.parse(localStorage.getItem(cacheKey()) || 'null'); if (c) { S.data = c.data; S.users = c.users; S.settings = c.settings; } } } catch (x) {}
-    if (!S.me) { root.innerHTML = '<div class="loading">Geen verbinding met de laptop. Controleer of je op hetzelfde wifi-netwerk zit en probeer opnieuw.</div>'; setTimeout(boot, 5000); return; }
+    if (!S.me) { root.innerHTML = '<div class="loading">Geen verbinding met de server. Controleer je internetverbinding en probeer opnieuw.</div>'; setTimeout(boot, 5000); return; }
   }
   const ds = days(); S.day = ds.includes(today()) ? today() : ds[0];
   S.pending = (await outbox.all()).length;

@@ -1,0 +1,20 @@
+# Luiten CRM op twonote.luitenfood.net — blok voor de Caddyfile van de VPS.
+# Wachtwoord-hash maken:  caddy hash-password   (en de uitkomst hieronder invullen)
+twonote.luitenfood.net {
+	encode zstd gzip
+	header -Server
+
+	# Foto-uploads tot 12 MB (app-limiet), plus marge
+	request_body {
+		max_size 13MB
+	}
+
+	# Site-wachtwoord vóór de app; /health blijft vrij voor de statuspagina
+	@beschermd not path /health
+	basic_auth @beschermd {
+		LuitenFood <HASH-VAN-caddy-hash-password>
+	}
+
+	# App luistert alleen lokaal. Caddy geeft Host, X-Forwarded-For/-Proto/-Host zelf correct door.
+	reverse_proxy 127.0.0.1:8000
+}
