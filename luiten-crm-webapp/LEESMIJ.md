@@ -107,7 +107,9 @@ Krijg je een melding van **Windows Firewall**? Kies dan *Toegang toestaan* voor 
 
 Gebruik voor publiek gebruik **altijd HTTPS**. De app zet dan zelf beveiligde cookies (alleen via HTTPS) en HSTS aan, en luistert alleen intern achter de proxy.
 
-**Optie A – Linux-server met Docker (aanbevolen)**
+**Optie 0 – Linux-VPS met nginx, zonder Docker:** zie [`deploy/INSTALLATIE-VPS.md`](deploy/INSTALLATIE-VPS.md) (systemd, nginx + Let's Encrypt, versleutelde back-up).
+
+**Optie A – Linux-server met Docker**
 1. Laat IT een DNS A-record maken, bijvoorbeeld `crm.luitenfood.com`, dat naar de server wijst. Zet de poorten 80 en 443 open; poort 8000 blijft dicht.
 2. Kopieer de map naar de server en zet `.env.example` om naar `.env` met `LCRM_DOMAIN=crm.luitenfood.com`.
 3. `docker compose up -d --build`. Caddy vraagt automatisch een Let's Encrypt-certificaat aan.
@@ -154,5 +156,6 @@ start-publiek.bat          publiek starten op Windows achter Caddy
 Dockerfile, docker-compose.yml, Caddyfile, .env.example   publiek draaien met HTTPS
 requirements.txt           benodigde onderdelen
 static/                    app, beheer, stijl, logo's en iconen
+deploy/                    VPS-installatie: systemd-service, nginx-config, versleutelde back-up
 data/                      wordt aangemaakt bij de eerste start: database, foto's, sleutel
 ```
