@@ -1,6 +1,6 @@
 # SIAL Notes — Luiten Food
 
-> **Huidige hoofdversie:** de webapp in [`luiten-crm-webapp/`](luiten-crm-webapp/LEESMIJ.md) (Flask + SQLite, mobiele web-app voor Android en iPhone). VPS-installatie: [`luiten-crm-webapp/deploy/INSTALLATIE-VPS.md`](luiten-crm-webapp/deploy/INSTALLATIE-VPS.md). Hieronder: de eerdere Android-app (Expo).
+> **Huidige hoofdversie:** de webapp in [`luiten-crm-webapp/`](luiten-crm-webapp/LEESMIJ.md) (Flask + SQLite, mobiele web-app voor Android en iPhone). VPS-installatie: [`luiten-crm-webapp/deploy/DEPLOYMENT.md`](luiten-crm-webapp/deploy/DEPLOYMENT.md). Hieronder: de eerdere Android-app (Expo).
 
 Internal Android app (React Native + Expo) for the Luiten Food sales & purchasing team at
 **SIAL Paris 2026** (Paris Nord Villepinte, 17–21 Oct 2026). Log a stand visit in under 30 seconds,

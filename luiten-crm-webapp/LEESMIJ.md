@@ -107,7 +107,7 @@ Krijg je een melding van **Windows Firewall**? Kies dan *Toegang toestaan* voor 
 
 Gebruik voor publiek gebruik **altijd HTTPS**. De app zet dan zelf beveiligde cookies (alleen via HTTPS) en HSTS aan, en luistert alleen intern achter de proxy.
 
-**Optie 0 – Linux-VPS met nginx, zonder Docker:** zie [`deploy/INSTALLATIE-VPS.md`](deploy/INSTALLATIE-VPS.md) (systemd, nginx + Let's Encrypt, versleutelde back-up).
+**Optie 0 – Linux-VPS met nginx, zonder Docker:** zie [`deploy/DEPLOYMENT.md`](deploy/DEPLOYMENT.md) (systemd, nginx + Let's Encrypt, versleutelde back-up).
 
 **Optie A – Linux-server met Docker**
 1. Laat IT een DNS A-record maken, bijvoorbeeld `crm.luitenfood.com`, dat naar de server wijst. Zet de poorten 80 en 443 open; poort 8000 blijft dicht.

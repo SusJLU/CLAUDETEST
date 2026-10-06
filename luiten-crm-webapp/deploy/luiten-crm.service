@@ -13,6 +13,9 @@ Environment=LCRM_PUBLIC_URL=https://crm.voorbeeld.nl
 Environment=LCRM_DATA=/var/lib/luiten-crm
 Environment=LCRM_PORT=8000
 Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+# Tijden van notities in lokale (beurs)tijd; een nieuwe VPS staat standaard op UTC
+Environment=TZ=Europe/Amsterdam
 ExecStart=/opt/luiten-crm/.venv/bin/python app.py
 Restart=on-failure
 RestartSec=3
