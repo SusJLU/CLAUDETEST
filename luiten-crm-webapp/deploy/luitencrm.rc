@@ -38,8 +38,8 @@ load_rc_config $name
 pidfile=/var/run/${name}/${name}.pid
 procname=/usr/sbin/daemon
 command=/usr/sbin/daemon
-# -r: herstart na een crash (na 5 s); -H: log opnieuw openen na SIGHUP (newsyslog); -P: pid van de bewaker; -o: log
-command_args="-r -R 5 -H -P ${pidfile} -o ${luitencrm_log} -u ${luitencrm_user} -t ${name} ${luitencrm_dir}/app.py"
+# Geen automatische herstart na een crash (bewust). -H: log opnieuw openen na SIGHUP (newsyslog); -P: pid van de bewaker; -o: log
+command_args="-H -P ${pidfile} -o ${luitencrm_log} -u ${luitencrm_user} -t ${name} ${luitencrm_dir}/app.py"
 luitencrm_env="LCRM_PUBLIC_URL=${luitencrm_url} LCRM_DATA=${luitencrm_data} LCRM_PORT=${luitencrm_port} TZ=${luitencrm_tz} PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1"
 
 start_precmd="${name}_prestart"

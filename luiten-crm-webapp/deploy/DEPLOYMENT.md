@@ -14,7 +14,7 @@ alleen wat de app nodig heeft.
 | Python-pakketten (pkg) | `py312-flask`, `py312-openpyxl`, `py312-sqlite3` — **geen pip** |
 | App-server | Standaardbibliotheek (`wsgiref` met threads), luistert alleen op `127.0.0.1:8000` |
 | Database | SQLite-bestand + foto's in `/var/db/luitencrm` |
-| Procesbeheer | rc.d-script `luitencrm` via `daemon(8)` (herstart automatisch na een crash) |
+| Procesbeheer | rc.d-script `luitencrm` via `daemon(8)`; geen automatische herstart na een crash (`/health` en de statuspagina signaleren uitval) |
 | Health | `GET /health` → JSON, zonder login of site-wachtwoord |
 
 ## Bestanden in `deploy/`
