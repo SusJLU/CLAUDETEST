@@ -1,11 +1,11 @@
 # Luiten CRM – webapp
 
 Notities, relaties, pijplijn en acties voor het inkoop- en verkoopteam. De app draait op de VPS van Luiten
-(FreeBSD) en is bereikbaar via **https://twonote.luitenfood.net**.
+(FreeBSD) en is bereikbaar via **https://luitencrm.luitenfood.net**.
 
-- **Mobiele app** (telefoon): `https://twonote.luitenfood.net/app`
-- **Beheer** (laptop/pc, alleen beheerder): `https://twonote.luitenfood.net/admin`
-- **Status** (zonder inloggen): `https://twonote.luitenfood.net/health`
+- **Mobiele app** (telefoon): `https://luitencrm.luitenfood.net/app`
+- **Beheer** (laptop/pc, alleen beheerder): `https://luitencrm.luitenfood.net/admin`
+- **Status** (zonder inloggen): `https://luitencrm.luitenfood.net/health`
 
 Installatie en beheer van de server: zie [`deploy/DEPLOYMENT.md`](deploy/DEPLOYMENT.md) (voor IT).
 
@@ -22,7 +22,7 @@ Er zijn twee sloten:
 
 ## 2. Eerste keer inrichten (beheerder)
 
-1. Open `https://twonote.luitenfood.net/admin` en log in als **beheerder** met het wachtwoord dat IT doorgeeft.
+1. Open `https://luitencrm.luitenfood.net/admin` en log in als **beheerder** met het wachtwoord dat IT doorgeeft.
 2. Kies direct een eigen wachtwoord.
 3. Ga naar **Gebruikers** en maak voor elke collega een account aan: naam, gebruikersnaam, rol (Inkoop of
    Verkoop) en een startwachtwoord. Deel startwachtwoorden persoonlijk, niet per mail.
@@ -32,7 +32,7 @@ Tip: maak twee beheerdersaccounts, zodat de ene beheerder het wachtwoord van de 
 
 ## 3. Telefoons
 
-1. Open `https://twonote.luitenfood.net/app` in Safari (iPhone) of Chrome (Android).
+1. Open `https://luitencrm.luitenfood.net/app` in Safari (iPhone) of Chrome (Android).
 2. Voer het site-wachtwoord in en log in met je eigen account.
 3. Zet de app op het beginscherm:
    - **iPhone:** Deel-knop → *Zet op beginscherm*
@@ -89,7 +89,7 @@ gegevens en de wachtrij blijven bewaard.
 ## 7. Beveiliging
 
 **Geregeld door IT (server)**
-- HTTPS met TLS-certificaat voor `twonote.luitenfood.net` (data onderweg versleuteld).
+- HTTPS met TLS-certificaat voor `luitencrm.luitenfood.net` (data onderweg versleuteld).
 - Versleuteling van de opslag op de VPS (data in rust versleuteld).
 - Site-wachtwoord vóór de app; dagelijkse back-up.
 

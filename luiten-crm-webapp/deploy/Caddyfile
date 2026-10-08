@@ -1,6 +1,6 @@
-# Luiten CRM op twonote.luitenfood.net — blok voor de Caddyfile van de VPS.
+# Luiten CRM op luitencrm.luitenfood.net — blok voor de Caddyfile van de VPS.
 # Wachtwoord-hash maken:  caddy hash-password   (en de uitkomst hieronder invullen)
-twonote.luitenfood.net {
+luitencrm.luitenfood.net {
 	encode zstd gzip
 	header -Server
 

@@ -1,4 +1,4 @@
-# Luiten CRM – deployment op FreeBSD (twonote.luitenfood.net)
+# Luiten CRM – deployment op FreeBSD (luitencrm.luitenfood.net)
 
 Overdracht voor IT. De VPS, Caddy, TLS en versleuteling in rust worden door IT beheerd; dit document beschrijft
 alleen wat de app nodig heeft.
@@ -7,7 +7,7 @@ alleen wat de app nodig heeft.
 
 | | |
 |---|---|
-| Adres | `https://twonote.luitenfood.net` (site-wachtwoord via Caddy, daarna eigen login per medewerker) |
+| Adres | `https://luitencrm.luitenfood.net` (site-wachtwoord via Caddy, daarna eigen login per medewerker) |
 | OS | FreeBSD 15.1-RELEASE |
 | Webserver / TLS | Caddy → `reverse_proxy 127.0.0.1:8000` |
 | Python | 3.12, `#!/usr/local/bin/python` |
@@ -22,7 +22,7 @@ alleen wat de app nodig heeft.
 | Bestand | Doel |
 |---|---|
 | `luitencrm.rc` | rc.d-script → `/usr/local/etc/rc.d/luitencrm` |
-| `Caddyfile` | site-blok voor `twonote.luitenfood.net` (met `basic_auth`, `/health` vrijgesteld) |
+| `Caddyfile` | site-blok voor `luitencrm.luitenfood.net` (met `basic_auth`, `/health` vrijgesteld) |
 | `backup.sh` | consistente dagelijkse back-up van database + foto's |
 
 ---
@@ -53,7 +53,7 @@ chmod 755 /usr/local/www/luitencrm/app.py /usr/local/www/luitencrm/deploy/backup
 ```sh
 install -m 555 /usr/local/www/luitencrm/deploy/luitencrm.rc /usr/local/etc/rc.d/luitencrm
 sysrc luitencrm_enable=YES
-sysrc luitencrm_url=https://twonote.luitenfood.net    # exact het publieke adres, met https://
+sysrc luitencrm_url=https://luitencrm.luitenfood.net    # exact het publieke adres, met https://
 service luitencrm start
 service luitencrm status
 tail -n 20 /var/log/luitencrm.log                     # toont het EERSTE beheerderswachtwoord
@@ -97,7 +97,7 @@ Belangrijk in dat blok:
 
 ## 5. Statuspagina
 
-Monitor `https://twonote.luitenfood.net/health`:
+Monitor `https://luitencrm.luitenfood.net/health`:
 - HTTP **200** met `"status":"ok"` → alles goed;
 - HTTP **503** met `"status":"error"` → database of opslag niet beschikbaar (zie `database` / `storage`);
 - geen antwoord / 502 → app draait niet (`service luitencrm status`, `/var/log/luitencrm.log`).
@@ -106,7 +106,7 @@ Het endpoint toont geen gebruikers- of klantgegevens.
 
 ## 6. App inrichten
 
-1. Open `https://twonote.luitenfood.net`, voer het site-wachtwoord in en log in als **beheerder** met het
+1. Open `https://luitencrm.luitenfood.net`, voer het site-wachtwoord in en log in als **beheerder** met het
    wachtwoord uit `/var/log/luitencrm.log` (ook in `/var/db/luitencrm/EERSTE-WACHTWOORD.txt`).
 2. Kies een eigen wachtwoord en verwijder het bestand: `rm /var/db/luitencrm/EERSTE-WACHTWOORD.txt`.
 3. Maak in **Gebruikers** de accounts voor de collega's aan; controleer in **Export & beurs** de beursgegevens.

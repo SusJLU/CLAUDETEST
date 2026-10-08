@@ -14,7 +14,7 @@
 #  luitencrm_user (str):     luitencrm
 #  luitencrm_dir (str):      /usr/local/www/luitencrm   (map met app.py en static/)
 #  luitencrm_data (str):     /var/db/luitencrm          (database, foto's, sleutel)
-#  luitencrm_url (str):      https://twonote.luitenfood.net
+#  luitencrm_url (str):      https://luitencrm.luitenfood.net
 #  luitencrm_port (int):     8000                       (alleen op 127.0.0.1)
 #  luitencrm_tz (str):       Europe/Amsterdam
 #  luitencrm_log (str):      /var/log/luitencrm.log
@@ -30,7 +30,7 @@ load_rc_config $name
 : ${luitencrm_user:=luitencrm}
 : ${luitencrm_dir:=/usr/local/www/luitencrm}
 : ${luitencrm_data:=/var/db/luitencrm}
-: ${luitencrm_url:=https://twonote.luitenfood.net}
+: ${luitencrm_url:=https://luitencrm.luitenfood.net}
 : ${luitencrm_port:=8000}
 : ${luitencrm_tz:=Europe/Amsterdam}
 : ${luitencrm_log:=/var/log/luitencrm.log}
