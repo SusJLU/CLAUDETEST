@@ -184,7 +184,7 @@ Object.entries(KIND).forEach(([id, kind]) => { const el = document.getElementByI
 
 /* ---------- form ---------- */
 function newForm(pre = {}) {
-  const t = isAdmin() ? 'lev' : (S.me.role === 'verkoop' ? 'klant' : 'lev');
+  const t = 'klant';  // standaard Klant; Leverancier kies je zelf in het formulier
   return {id: rid(), edit: false, company: '', type: t, country: '', hall: '', stand: '', stage: 'lead', contact: '', contact_role: '', groups: [], priority: 'warm',
     text: '', contact_email: '', contact_phone: '', price: '', photos: [], existing: [], removed: [], task: '', owner: S.me.id, due: addDays(today(), 3), date: S.day, time: hhmm(), meeting_id: null, err: false, ...pre};
 }
